@@ -1,9 +1,11 @@
 from fastapi import FastAPI
+import google.generativeai as genai
+import os
 
+genai.configure(api_key = os.environ["GEMINI_API_KEY"])
 
-app = FastAPI()
+model = genai.GenerativeModel("gemini-1.5-flash")
 
+response = model.generate_content("Explain APIs in 2 lines")
 
-@app.get("/")
-async def root():
-    return {"message":"App is working?"}
+print(response.text)
