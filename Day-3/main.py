@@ -2,10 +2,19 @@ import os
 from openai import OpenAI
 from dotenv import load_dotenv
 from fastapi import FastAPI
+import json
 
 load_dotenv()
 
 app = FastAPI()
+
+prompt = """
+Extract name and age from this text. 
+Return ONLY valid JSON, no other text, no markdown formatting.
+Format: {"name": "...", "age": ...}
+
+Text: Ali, 25 saal
+"""
 
 
 
@@ -16,11 +25,16 @@ client = OpenAI(
 
 @app.get("/test")
 def test():
-    try:
-        response = client.chat.completions.create(
-            model="openrouter/auto",
-            messages=[{"role": "user", "content": "Explain APIs in 2 lines"}]
+     response = client.chat.completions.create(
+            # model="openrouter/auto",
+            model = "poolside/laguna-xs-2.1:free"
+            messages=[{"role": "user", "content": prompt}]
         )
-        return {"response": response.choices[0].message.content}
-    except Exception as e:
-        return {"error": str(e)}
+     text = response.choices[0].message.content.strip()
+     if text.startswith("```"):
+        text = text.split("```")[1].replace("json","").strip()
+     try:
+       data = json.loads(text)
+       return data
+     except json.JSONDecodeError:
+        print("LLM ne valid JSON nahi diya, dobara try karo")
