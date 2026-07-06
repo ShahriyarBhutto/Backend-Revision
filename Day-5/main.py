@@ -1,17 +1,31 @@
-from fastapi import FastAPI,UploadFile, HTTPException
-from extractor import extract_text_pdf, get_structured_data
-import json
+import pdfplumber
+from openai import OpenAI
+from dotenv import load_dotenv
+import json, os
 
-app = FastAPI
 
-@app.post("/post")
-async def extract_invoice(file: UploadFile):
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400,detail="Please uplaod a pdf file")
-    
-    text = extract_text_pdf(file.file)
-    try:
-        data = get_structured_data(text)
-        return data
-    except json.JSONDecodeError:
-        raise HTTPException(status_code=500,detail="LLM is valid, but unable to find the data")
+load_dotenv()
+
+client = OpenAI(
+    base_url = "",
+    api_key = os.environ[""]
+)
+
+
+def extract_text_from_pdf(file):
+    with pdfplumber.open(file) as pdf:
+        text = ""
+        for page in pdf.pages:
+            text += page.extract_text()
+    return text
+
+def get_structured_data(text):
+    prompt = ""
+
+    response = client.chat.completion.create(
+        model = "",
+        messages = [{"role":"user","content":prompt}]
+    )
+
+    clean_text = response.choice[0].message.content.strip().replace("```json","").replace("```","")
+    return json.loads(clean_text)
