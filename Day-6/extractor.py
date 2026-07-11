@@ -18,3 +18,7 @@ def extract_data_from_pdf(file):
             text += page.extract_text
     return text
 
+
+def get_structured_data(text):
+    prompt = ""
+    response = client()
