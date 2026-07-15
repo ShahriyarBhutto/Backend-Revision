@@ -1,18 +1,8 @@
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlaclhchemy.orm import sessionmaker
+from sqlalchemy.ext.declerative import declarative
+from sqlalchemy.orm import sessionlocal
 
-DATABASE_URL = "sqlite:///./invoices.db"
 
-engine = create_engine(DATABASE_URL,connects_args = {"check_same_thread":False})
+DATABASE_URL = "sqlite///./invoice.db"
 
-SessionLocal = sessionmaker(autocommit = False, autoflush = False, bind = engine)
-
-Base = declarative_base()
-
-def get_db():
-    db: SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+engine = create_engine(DATABASE_URL)
